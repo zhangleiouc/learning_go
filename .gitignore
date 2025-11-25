@@ -8,10 +8,10 @@ logs/
 
 
 ### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-*.serial
-*.log
-**/.flattened-pom.xml
+#.idea
+#*.iws
+#*.iml
+#*.ipr
+#*.serial
+#*.log
+#**/.flattened-pom.xml
