@@ -5,3 +5,13 @@ logs/
 .vscode/
 ../target/
 .env
+
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+*.serial
+*.log
+**/.flattened-pom.xml
