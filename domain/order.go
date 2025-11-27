@@ -19,10 +19,21 @@ type Order struct {
 	// 可以根据实际表结构添加更多字段
 }
 
+type CreateOrderRequest struct {
+	OrderCode  string `json:"order_code" binding:"required"`
+	CustomerID int64  `json:"customer_id" binding:"required"`
+}
+
+type CreateOrderResponse struct {
+	OrderID int64 `json:"order_id"`
+}
+
 type OrderRepository interface {
 	GetByID(c context.Context, id int64) (*Order, error)
+	Create(c context.Context, order *Order) (int64, error)
 }
 
 type OrderUsecase interface {
 	GetByID(c context.Context, id int64) (*Order, error)
+	Create(c context.Context, request *CreateOrderRequest) (int64, error)
 }

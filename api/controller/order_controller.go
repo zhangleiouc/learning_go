@@ -40,3 +40,28 @@ func (oc *OrderController) GetByID(c *gin.Context) {
 		Data: order,
 	})
 }
+
+func (oc *OrderController) Create(c *gin.Context) {
+	var request domain.CreateOrderRequest
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{
+			Message: "Invalid request body: " + err.Error(),
+		})
+		return
+	}
+
+	orderID, err := oc.OrderUsecase.Create(c.Request.Context(), &request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{
+			Message: "Failed to create order: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, domain.SuccessResponse{
+		Data: domain.CreateOrderResponse{
+			OrderID: orderID,
+		},
+	})
+}

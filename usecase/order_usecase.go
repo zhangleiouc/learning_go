@@ -24,3 +24,15 @@ func (ou *orderUsecase) GetByID(c context.Context, id int64) (*domain.Order, err
 	defer cancel()
 	return ou.orderRepository.GetByID(ctx, id)
 }
+
+func (ou *orderUsecase) Create(c context.Context, request *domain.CreateOrderRequest) (int64, error) {
+	ctx, cancel := context.WithTimeout(c, ou.contextTimeout)
+	defer cancel()
+
+	order := &domain.Order{
+		OrderCode:  &request.OrderCode,
+		CustomerID: &request.CustomerID,
+	}
+
+	return ou.orderRepository.Create(ctx, order)
+}

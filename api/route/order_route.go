@@ -17,4 +17,5 @@ func NewOrderRouter(env *bootstrap.Env, timeout time.Duration, db *sql.DB, group
 		OrderUsecase: usecase.NewOrderUsecase(or, timeout),
 	}
 	group.GET("/order/:id", oc.GetByID)
+	group.POST("/order", oc.Create)
 }
