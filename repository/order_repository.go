@@ -82,3 +82,49 @@ func (or *orderRepository) Create(c context.Context, order *domain.Order) (int64
 
 	return id, nil
 }
+
+func (or *orderRepository) GetByCustomerID(c context.Context, customerID int64) ([]*domain.Order, error) {
+	query := fmt.Sprintf(`
+		SELECT id, order_code, customer_id
+		FROM %s
+		WHERE customer_id = ?
+		ORDER BY id DESC
+	`, domain.TableOrder)
+
+	rows, err := or.db.QueryContext(c, query, customerID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query orders: %w", err)
+	}
+	defer rows.Close()
+
+	var orders []*domain.Order
+	for rows.Next() {
+		order := &domain.Order{}
+		var orderNo sql.NullString
+		var customerID sql.NullInt64
+
+		err := rows.Scan(
+			&order.ID,
+			&orderNo,
+			&customerID,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan order: %w", err)
+		}
+
+		if orderNo.Valid {
+			order.OrderCode = &orderNo.String
+		}
+		if customerID.Valid {
+			order.CustomerID = &customerID.Int64
+		}
+
+		orders = append(orders, order)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating orders: %w", err)
+	}
+
+	return orders, nil
+}

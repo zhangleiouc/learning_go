@@ -36,3 +36,9 @@ func (ou *orderUsecase) Create(c context.Context, request *domain.CreateOrderReq
 
 	return ou.orderRepository.Create(ctx, order)
 }
+
+func (ou *orderUsecase) GetByCustomerID(c context.Context, customerID int64) ([]*domain.Order, error) {
+	ctx, cancel := context.WithTimeout(c, ou.contextTimeout)
+	defer cancel()
+	return ou.orderRepository.GetByCustomerID(ctx, customerID)
+}
