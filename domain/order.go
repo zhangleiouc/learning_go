@@ -31,9 +31,11 @@ type CreateOrderResponse struct {
 type OrderRepository interface {
 	GetByID(c context.Context, id int64) (*Order, error)
 	Create(c context.Context, order *Order) (int64, error)
+	GetByCustomerID(c context.Context, customerID int64) ([]*Order, error)
 }
 
 type OrderUsecase interface {
 	GetByID(c context.Context, id int64) (*Order, error)
 	Create(c context.Context, request *CreateOrderRequest) (int64, error)
+	GetByCustomerID(c context.Context, customerID int64) ([]*Order, error)
 }

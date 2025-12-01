@@ -18,4 +18,5 @@ func NewOrderRouter(env *bootstrap.Env, timeout time.Duration, db *sql.DB, group
 	}
 	group.GET("/order/:id", oc.GetByID)
 	group.POST("/order", oc.Create)
+	group.GET("/order/customer/:customer_id", oc.GetByCustomerID)
 }

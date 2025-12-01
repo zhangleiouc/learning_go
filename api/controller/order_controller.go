@@ -65,3 +65,26 @@ func (oc *OrderController) Create(c *gin.Context) {
 		},
 	})
 }
+
+func (oc *OrderController) GetByCustomerID(c *gin.Context) {
+	customerIDParam := c.Param("customer_id")
+	customerID, err := strconv.ParseInt(customerIDParam, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{
+			Message: "Invalid customer ID",
+		})
+		return
+	}
+
+	orders, err := oc.OrderUsecase.GetByCustomerID(c.Request.Context(), customerID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{
+			Message: "Failed to get orders: " + err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, domain.SuccessResponse{
+		Data: orders,
+	})
+}
