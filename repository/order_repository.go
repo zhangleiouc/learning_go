@@ -20,7 +20,7 @@ func NewOrderRepository(db *sql.DB) domain.OrderRepository {
 
 func (or *orderRepository) GetByID(c context.Context, id int64) (*domain.Order, error) {
 	query := fmt.Sprintf(`
-		SELECT id, order_code, customer_id
+		SELECT id, order_code, customer_id, status
 		FROM %s
 		WHERE id = ?
 	`, domain.TableOrder)
@@ -28,11 +28,13 @@ func (or *orderRepository) GetByID(c context.Context, id int64) (*domain.Order, 
 	order := &domain.Order{}
 	var orderNo sql.NullString
 	var customerID sql.NullInt64
+	var status sql.NullString
 
 	err := or.db.QueryRowContext(c, query, id).Scan(
 		&order.ID,
 		&orderNo,
 		&customerID,
+		&status,
 	)
 
 	if err != nil {
@@ -48,12 +50,9 @@ func (or *orderRepository) GetByID(c context.Context, id int64) (*domain.Order, 
 	if customerID.Valid {
 		order.CustomerID = &customerID.Int64
 	}
-	//if totalAmount.Valid {
-	//	order.TotalAmount = &totalAmount.String
-	//}
-	//if status.Valid {
-	//	order.Status = &status.String
-	//}
+	if status.Valid {
+		order.Status = &status.String
+	}
 	//if createdAt.Valid {
 	//	order.CreatedAt = &createdAt.String
 	//}
@@ -66,11 +65,11 @@ func (or *orderRepository) GetByID(c context.Context, id int64) (*domain.Order, 
 
 func (or *orderRepository) Create(c context.Context, order *domain.Order) (int64, error) {
 	query := fmt.Sprintf(`
-		INSERT INTO %s (order_no, customer_id)
-		VALUES (?, ?)
+		INSERT INTO %s (order_no, customer_id, status)
+		VALUES (?, ?, ?)
 	`, domain.TableOrder)
 
-	result, err := or.db.ExecContext(c, query, order.OrderCode, order.CustomerID)
+	result, err := or.db.ExecContext(c, query, order.OrderCode, order.CustomerID, order.Status)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create order: %w", err)
 	}
@@ -85,7 +84,7 @@ func (or *orderRepository) Create(c context.Context, order *domain.Order) (int64
 
 func (or *orderRepository) GetByCustomerID(c context.Context, customerID int64) ([]*domain.Order, error) {
 	query := fmt.Sprintf(`
-		SELECT id, order_code, customer_id
+		SELECT id, order_code, customer_id, status
 		FROM %s
 		WHERE customer_id = ?
 		ORDER BY id DESC
@@ -102,11 +101,13 @@ func (or *orderRepository) GetByCustomerID(c context.Context, customerID int64) 
 		order := &domain.Order{}
 		var orderNo sql.NullString
 		var customerID sql.NullInt64
+		var status sql.NullString
 
 		err := rows.Scan(
 			&order.ID,
 			&orderNo,
 			&customerID,
+			&status,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan order: %w", err)
@@ -118,6 +119,9 @@ func (or *orderRepository) GetByCustomerID(c context.Context, customerID int64) 
 		if customerID.Valid {
 			order.CustomerID = &customerID.Int64
 		}
+		if status.Valid {
+			order.Status = &status.String
+		}
 
 		orders = append(orders, order)
 	}
@@ -127,4 +131,29 @@ func (or *orderRepository) GetByCustomerID(c context.Context, customerID int64) 
 	}
 
 	return orders, nil
+}
+
+// UpdateStatus 更新订单状态
+func (or *orderRepository) UpdateStatus(c context.Context, id int64, status string) error {
+	query := fmt.Sprintf(`
+		UPDATE %s
+		SET status = ?
+		WHERE id = ?
+	`, domain.TableOrder)
+
+	result, err := or.db.ExecContext(c, query, status, id)
+	if err != nil {
+		return fmt.Errorf("failed to update order status: %w", err)
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get rows affected when updating order status: %w", err)
+	}
+
+	if affected == 0 {
+		return fmt.Errorf("order not found")
+	}
+
+	return nil
 }
