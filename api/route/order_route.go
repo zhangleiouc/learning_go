@@ -12,6 +12,7 @@ import (
 )
 
 func NewOrderRouter(env *bootstrap.Env, timeout time.Duration, db *sql.DB, group *gin.RouterGroup) {
+	_ = env // currently unused, kept for future environment-based configs
 	or := repository.NewOrderRepository(db)
 	oc := &controller.OrderController{
 		OrderUsecase: usecase.NewOrderUsecase(or, timeout),
