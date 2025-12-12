@@ -13,4 +13,5 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db *sql.DB, gin *gin.Engin
 	// All Public APIs
 	NewOrderRouter(env, timeout, db, publicRouter)
 	NewProductRouter(env, timeout, db, publicRouter)
+	NewInvoiceRouter(env, timeout, db, publicRouter)
 }
