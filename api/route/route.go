@@ -15,4 +15,5 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db *sql.DB, gin *gin.Engin
 	NewProductRouter(env, timeout, db, publicRouter)
 	NewInvoiceRouter(env, timeout, db, publicRouter)
 	NewCouponRouter(env, timeout, db, publicRouter)
+	NewCartRouter(env, timeout, db, publicRouter)
 }
