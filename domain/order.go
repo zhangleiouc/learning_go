@@ -20,11 +20,11 @@ var (
 )
 
 type Order struct {
-	ID         int64   `json:"id" db:"id"`
-	OrderCode  *string `json:"order_code,omitempty" db:"order_no"`
-	CustomerID *int64  `json:"customer_id,omitempty" db:"customer_id"`
-	Status     *string `json:"status,omitempty" db:"status"`
-	//TotalAmount *string `json:"total_amount,omitempty" db:"total_amount"`
+	ID          int64    `json:"id" db:"id"`
+	OrderCode   *string  `json:"order_code,omitempty" db:"order_no"`
+	CustomerID  *int64   `json:"customer_id,omitempty" db:"customer_id"`
+	Status      *string  `json:"status,omitempty" db:"status"`
+	TotalAmount *float64 `json:"total_amount,omitempty" db:"total_amount"`
 	//CreatedAt   *string `json:"created_at,omitempty" db:"created_at"`
 	//UpdatedAt   *string `json:"updated_at,omitempty" db:"updated_at"`
 	// 可以根据实际表结构添加更多字段
