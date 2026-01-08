@@ -20,7 +20,7 @@ func NewOrderRepository(db *sql.DB) domain.OrderRepository {
 
 func (or *orderRepository) GetByID(c context.Context, id int64) (*domain.Order, error) {
 	query := fmt.Sprintf(`
-		SELECT id, order_code, customer_id, status
+		SELECT id, order_code, customer_id, status, total_amount
 		FROM %s
 		WHERE id = ?
 	`, domain.TableOrder)
@@ -29,12 +29,14 @@ func (or *orderRepository) GetByID(c context.Context, id int64) (*domain.Order, 
 	var orderNo sql.NullString
 	var customerID sql.NullInt64
 	var status sql.NullString
+	var totalAmount sql.NullFloat64
 
 	err := or.db.QueryRowContext(c, query, id).Scan(
 		&order.ID,
 		&orderNo,
 		&customerID,
 		&status,
+		&totalAmount,
 	)
 
 	if err != nil {
@@ -52,6 +54,9 @@ func (or *orderRepository) GetByID(c context.Context, id int64) (*domain.Order, 
 	}
 	if status.Valid {
 		order.Status = &status.String
+	}
+	if totalAmount.Valid {
+		order.TotalAmount = &totalAmount.Float64
 	}
 	//if createdAt.Valid {
 	//	order.CreatedAt = &createdAt.String
@@ -84,7 +89,7 @@ func (or *orderRepository) Create(c context.Context, order *domain.Order) (int64
 
 func (or *orderRepository) GetByCustomerID(c context.Context, customerID int64) ([]*domain.Order, error) {
 	query := fmt.Sprintf(`
-		SELECT id, order_code, customer_id, status
+		SELECT id, order_code, customer_id, status, total_amount
 		FROM %s
 		WHERE customer_id = ?
 		ORDER BY id DESC
@@ -102,12 +107,14 @@ func (or *orderRepository) GetByCustomerID(c context.Context, customerID int64) 
 		var orderNo sql.NullString
 		var customerID sql.NullInt64
 		var status sql.NullString
+		var totalAmount sql.NullFloat64
 
 		err := rows.Scan(
 			&order.ID,
 			&orderNo,
 			&customerID,
 			&status,
+			&totalAmount,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan order: %w", err)
@@ -121,6 +128,9 @@ func (or *orderRepository) GetByCustomerID(c context.Context, customerID int64) 
 		}
 		if status.Valid {
 			order.Status = &status.String
+		}
+		if totalAmount.Valid {
+			order.TotalAmount = &totalAmount.Float64
 		}
 
 		orders = append(orders, order)
