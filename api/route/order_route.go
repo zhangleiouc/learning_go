@@ -14,8 +14,10 @@ import (
 func NewOrderRouter(env *bootstrap.Env, timeout time.Duration, db *sql.DB, group *gin.RouterGroup) {
 	_ = env // currently unused, kept for future environment-based configs
 	or := repository.NewOrderRepository(db)
+	pr := repository.NewPointsRepository(db)
+	pu := usecase.NewPointsUsecase(pr, timeout)
 	oc := &controller.OrderController{
-		OrderUsecase: usecase.NewOrderUsecase(or, timeout),
+		OrderUsecase: usecase.NewOrderUsecase(or, pu, timeout),
 	}
 	group.GET("/order/:id", oc.GetByID)
 	group.POST("/order", oc.Create)
